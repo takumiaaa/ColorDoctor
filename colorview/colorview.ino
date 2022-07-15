@@ -71,7 +71,7 @@ void loop() {
   
     tcs.setInterrupt(false);  // turn on LED
   
-//    delay(600);  // takes 50ms to read
+    delay(600);  // takes 50ms to read
   
     tcs.getRGB(&red, &green, &blue);
   

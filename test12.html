@@ -56,136 +56,65 @@
   <script>
     var mainjs_vali = "a";
     let isStatus = true;
+    let func_vali;
+    let port = null;
+    let allData = new Array(3);
     async function data1() {
-      kqwdowhbf; kwjbf; jkfn; oakln:AudioBuffer]ep @ofnoiasndj MediaKeyMessageEventdsa
-      [odg@smpk; addSerial
-      adgiknaonklgda
 
-]
-      let func_vali;
-      let port;
       try {
-        port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 115200 });
-        while (port.readable) {
-          const reader = port.readable.getReader();
-          try {
-            while (isStatus) {
-              const { value, done } = await reader.read();
-              if (done) {
-                addSerial("Canceled\n");
-                break;
-              }
-              const inputValue = new TextDecoder().decode(value);
-              addSerial(inputValue);
-            }
-          } catch (error) {
-            addSerial("Error: Read" + error + "\n");
-          } finally {
-            reader.releaseLock();
-          }
-
+        if (!port) {
+          port = await navigator.serial.requestPort();
+          await port.open({ baudRate: 115200 });
         }
+        await main();
         return "naruki";
       }
       catch (error) {
         addSerial("Error: Open" + error + "\n");
       }
-      function addSerial(msg) {
-        var textarea = document.getElementById('outputArea');
-        let colorInfo1 = document.getElementById("colorInfo1");
-        let data = msg.split(",");
 
-        if (data.length === 3) {
-          colorData1 = { R: data[0], G: data[1], B: data[2] };
-          func_vali = colorData1.R
-          colorInfo1.style.backgroundColor = `rgba(${colorData1.R},${colorData1.G},${colorData1.B},1)`
-        }
-        //console.log(x)
-        //console.log(y)
-      }
 
     }
 
+    const main = async (mode) => {
+      const reader = port.readable.getReader();
+      let inputValue;
+      isStatus = true;
+      try {
+        while (isStatus) {
+          const { value, done } = await reader.read();
+          if (done) {
+            addSerial("Canceled\n");
+            break;
+          }
+          inputValue = new TextDecoder().decode(value);
+          console.log(addSerial(inputValue));
+        }
+      } catch (error) {
+        addSerial("Error: Read" + error + "\n");
+      } finally {
+        reader.releaseLock();
+      }
+      let data = addSerial(inputValue);
+      console.log(data);
+    }
+    function addSerial(msg) {
+      var textarea = document.getElementById('outputArea');
+      let colorInfo1 = document.getElementById("colorInfo1");
+      let data = msg.split(",");
 
+      if (data.length === 3) {
+        let colorData = { R: data[0], G: data[1], B: data[2] };
+        // func_vali = colorData.R
+        return colorData;
+        // colorInfo1.style.backgroundColor = `rgba(${colorData1.R},${colorData1.G},${colorData1.B},1)`
+      }
+      return msg;
+    }
     const StatusChangeMethod = () => {
       isStatus = isStatus ? false : true;
     }
 
-    async function data2() {
-      let port;
-
-      //async function onConnectButtonClick() {
-      try {
-        port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 115200 });
-
-        while (port.readable) {
-          const reader = port.readable.getReader();
-
-          try {
-            while (true) {
-              const { value, done } = await reader.read();
-              if (done) {
-                addSerial("Canceled\n");
-                break;
-              }
-              const inputValue = new TextDecoder().decode(value);
-              addSerial(inputValue);
-            }
-          } catch (error) {
-            addSerial("Error: Read" + error + "\n");
-          } finally {
-            reader.releaseLock();
-          }
-        }
-      } catch (error) {
-        addSerial("Error: Open" + error + "\n");
-      }
-      //}
-
-      function addSerial(msg) {
-        var textarea = document.getElementById('outputArea');
-        let colorInfo2 = document.getElementById("colorInfo2");
-        let data = msg.split(",");
-        // console.log(msg); 
-
-
-        if (data.length === 3) {
-          let colorData2 = { R: data[0], G: data[1], B: data[2] };
-
-          // textarea.value += data[0];
-          colorInfo2.style.backgroundColor = `rgba(${colorData2.R},${colorData2.G},${colorData2.B},1)`
-          console.log(colorData2.B);
-
-          // textarea.value="\n";
-          // textarea.scrollTop = textarea.scrollHeight;
-          colordata2_R = colorData2.R;
-          colordata2_G = colorData2.G;
-          colordata2_B = colorData2.B;
-          console.log(colordata1_R);
-        }
-        //付け加えたやつoutputArea.innerHTML = textarea.value;
-
-      }
-    }
-
-    const StartMethod = () => {
-      console.log(data1());
-      // data1();
-    }
-
-
-
-// function data3(){ 
-//     let colorInfo3=document.getElementById("colorInfo3");
-//     colorData3.R = (colorData1_R + colorData2_R)/2;
-//    colorData3.G = (colorData1_G + colorData2_G)/2;
-//    colorData3.B = (colorData1_B + colordata2_B)/2;
-//    colorInfo3.style.backgroundColor=`rgba(${colorData3.R},${colorData3.G},${colorData3.B},1)`
-//    console.log(colorData3.B);
-
-// }
   </script>
 </head>
 
@@ -202,7 +131,7 @@
   </div>
   <div id="colorInfo3"></div>
 
-  <input type="button" name="start" value="first" onclick="StartMethod()">
+  <input type="button" name="start" value="first" onclick="data1()">
   <input type="button" name="next" value="second" onclick="StatusChangeMethod()">
   <input type="button" name="shake" value="shake" onclick="data3();">
 
