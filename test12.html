@@ -5,159 +5,66 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Web Serial API Console</title>
-  <style>
-    #v {
-      border: 1px solid #fff;
-      width: 300px;
-      height: 200px;
-      margin: 0%;
-      background-color: #fff;
-    }
-
-    input[type=range] {
-      width: 300px;
-    }
-
-    #sikenkan {
-      position: relative;
-      border: 1px solid #000;
-      border-bottom-right-radius: 30px 50px;
-      border-bottom-left-radius: 30px 50px;
-      height: 200px;
-      width: 50px;
-      margin: 0% auto;
-    }
-
-    #colorInfo1 {
-      position: absolute;
-      border-bottom-right-radius: 30px 50px;
-      border-bottom-left-radius: 30px 50px;
-      height: 80px;
-      width: 50px;
-      top: 120px;
-      margin: 0% auto;
-    }
-
-    #colorInfo2 {
-      position: absolute;
-      height: 80px;
-      width: 50px;
-      top: 40px;
-    }
-
-    #colorInfo3 {
-
-      height: 10px;
-      width: 50px;
-      top: 200px;
-    }
-  </style>
-
   <script>
-    var mainjs_vali = "a";
-    let isStatus = true;
-    let func_vali;
-    let port = null;
-    let allData = new Array(3);
-    async function data1() {
+    let port;
 
+    async function onConnectButtonClick() {
       try {
-        if (!port) {
-          port = await navigator.serial.requestPort();
-          await port.open({ baudRate: 115200 });
-        }
-        await main();
-        return "naruki";
-      }
-      catch (error) {
-        addSerial("Error: Open" + error + "\n");
-      }
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 115200 });
 
+        while (port.readable) {
+          const reader = port.readable.getReader();
 
-    }
-
-    const main = async (mode) => {
-      const reader = port.readable.getReader();
-      let inputValue;
-      isStatus = true;
-      try {
-        while (isStatus) {
-          const { value, done } = await reader.read();
-          if (done) {
-            addSerial("Canceled\n");
-            break;
+          try {
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) {
+                addSerial("Canceled\n");
+                break;
+              }
+              const inputValue = new TextDecoder().decode(value);
+              addSerial(inputValue);
+            }
+          } catch (error) {
+            addSerial("Error: Read" + error + "\n");
+          } finally {
+            reader.releaseLock();
           }
-          inputValue = new TextDecoder().decode(value);
-          console.log(addSerial(inputValue));
         }
       } catch (error) {
-        addSerial("Error: Read" + error + "\n");
-      } finally {
-        reader.releaseLock();
+        addSerial("Error: Open" + error + "\n");
       }
-      let data = addSerial(inputValue);
-      console.log(data);
     }
+
     function addSerial(msg) {
       var textarea = document.getElementById('outputArea');
-      let colorInfo1 = document.getElementById("colorInfo1");
-      let data = msg.split(",");
-
-      if (data.length === 3) {
-        let colorData = { R: data[0], G: data[1], B: data[2] };
-        // func_vali = colorData.R
-        return colorData;
-        // colorInfo1.style.backgroundColor = `rgba(${colorData1.R},${colorData1.G},${colorData1.B},1)`
-      }
-      return msg;
-    }
-    const StatusChangeMethod = () => {
-      isStatus = isStatus ? false : true;
+      textarea.value += msg;
+      textarea.scrollTop = textarea.scrollHeight;
     }
 
+    async function sendSerial() {
+      var text = document.getElementById('sendInput').value;
+      document.getElementById('sendInput').value = "";
+
+      const encoder = new TextEncoder();
+      const writer = port.writable.getWriter();
+      await writer.write(encoder.encode(text + "\n"));
+      writer.releaseLock();
+    }
   </script>
 </head>
 
 <body>
+  <h1>Web Serial API Console</h1>
+  <button onclick="onConnectButtonClick()">Connect</button> 115200 Only
+  <br />
 
+  <input type="text" id="sendInput" />
+  <input type="button" value="Send" onclick="sendSerial();" />
+  <br />
+  <textarea cols="80" rows="6" id="outputArea" readonly></textarea>
 
-  <center>
-    <h1>色を混ぜる</h1>
-  </center>
-
-  <div id="sikenkan">
-    <div id="colorInfo2"></div>
-    <div id="colorInfo1"></div>
-  </div>
-  <div id="colorInfo3"></div>
-
-  <input type="button" name="start" value="first" onclick="data1()">
-  <input type="button" name="next" value="second" onclick="StatusChangeMethod()">
-  <input type="button" name="shake" value="shake" onclick="data3();">
-
-  <!--
-    <div id='v'>
-    </div>
-    <input type='range' id='cyan'    min='0' max='255' value='0'>Cyan<br>
-    <input type='range' id='magenta' min='0' max='255' value='0'>Magenta<br>
-    <input type='range' id='yellow'  min='0' max='255' value='0'>Yellow<br>
-    <script>
-    'use strict';
-    window.addEventListener('DOMContentLoaded', function() {
-        const c = {};
-        const d = document.querySelectorAll('colorInfo');
-                c.cyan = data[0]
-                c.magenta = data[1]
-                c.yellow = data[2]
-                const colorCode =
-                    (0xffffff - (c.cyan << 16 | c.magenta << 8 | c.yellow))
-                    .toString(16).padStart(6, '0');
-                document.querySelector('#v').style.backgroundColor = `#${colorInfo}`;
-            });
-    
-    </script>
-
-    -->
 </body>
 
 </html>
