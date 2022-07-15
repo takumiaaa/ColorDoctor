@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Serial API Console</title>
+  <style>
+    #v {
+      border: 1px solid #fff;
+      width: 300px;
+      height: 200px;
+      margin: 0%;
+      background-color: #fff;
+    }
+
+    input[type=range] {
+      width: 300px;
+    }
+
+    #sikenkan {
+      position: relative;
+      border: 1px solid #000;
+      border-bottom-right-radius: 30px 50px;
+      border-bottom-left-radius: 30px 50px;
+      height: 200px;
+      width: 50px;
+      margin: 0% auto;
+    }
+
+    #colorInfo1 {
+      position: absolute;
+      border-bottom-right-radius: 30px 50px;
+      border-bottom-left-radius: 30px 50px;
+      height: 80px;
+      width: 50px;
+      top: 120px;
+      margin: 0% auto;
+    }
+
+    #colorInfo2 {
+      position: absolute;
+      height: 80px;
+      width: 50px;
+      top: 40px;
+    }
+
+    #colorInfo3 {
+
+      height: 10px;
+      width: 50px;
+      top: 200px;
+    }
+  </style>
+
+  <script>
+    var mainjs_vali = "a";
+    let isStatus = true;
+    async function data1() {
+
+      let func_vali;
+      let port;
+      try {
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 115200 });
+        while (port.readable) {
+          const reader = port.readable.getReader();
+          try {
+            while (isStatus) {
+              const { value, done } = await reader.read();
+              if (done) {
+                addSerial("Canceled\n");
+                break;
+              }
+              const inputValue = new TextDecoder().decode(value);
+              addSerial(inputValue);
+            }
+          } catch (error) {
+            addSerial("Error: Read" + error + "\n");
+          } finally {
+            reader.releaseLock();
+          }
+
+        }
+        return "naruki";
+      }
+      catch (error) {
+        addSerial("Error: Open" + error + "\n");
+      }
+      function addSerial(msg) {
+        var textarea = document.getElementById('outputArea');
+        let colorInfo1 = document.getElementById("colorInfo1");
+        let data = msg.split(",");
+
+        if (data.length === 3) {
+          colorData1 = { R: data[0], G: data[1], B: data[2] };
+          func_vali = colorData1.R
+          colorInfo1.style.backgroundColor = `rgba(${colorData1.R},${colorData1.G},${colorData1.B},1)`
+        }
+        //console.log(x)
+        //console.log(y)
+      }
+
+    }
+
+
+    const StatusChangeMethod = () => {
+      isStatus = isStatus ? false : true;
+    }
+
+    async function data2() {
+      let port;
+
+      //async function onConnectButtonClick() {
+      try {
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 115200 });
+
+        while (port.readable) {
+          const reader = port.readable.getReader();
+
+          try {
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) {
+                addSerial("Canceled\n");
+                break;
+              }
+              const inputValue = new TextDecoder().decode(value);
+              addSerial(inputValue);
+            }
+          } catch (error) {
+            addSerial("Error: Read" + error + "\n");
+          } finally {
+            reader.releaseLock();
+          }
+        }
+      } catch (error) {
+        addSerial("Error: Open" + error + "\n");
+      }
+      //}
+
+      function addSerial(msg) {
+        var textarea = document.getElementById('outputArea');
+        let colorInfo2 = document.getElementById("colorInfo2");
+        let data = msg.split(",");
+        // console.log(msg); 
+
+
+        if (data.length === 3) {
+          let colorData2 = { R: data[0], G: data[1], B: data[2] };
+
+          // textarea.value += data[0];
+          colorInfo2.style.backgroundColor = `rgba(${colorData2.R},${colorData2.G},${colorData2.B},1)`
+          console.log(colorData2.B);
+
+          // textarea.value="\n";
+          // textarea.scrollTop = textarea.scrollHeight;
+          colordata2_R = colorData2.R;
+          colordata2_G = colorData2.G;
+          colordata2_B = colorData2.B;
+          console.log(colordata1_R);
+        }
+        //付け加えたやつoutputArea.innerHTML = textarea.value;
+
+      }
+    }
+
+    const StartMethod = () => {
+      console.log(data1());
+      // data1();
+    }
+
+
+
+// function data3(){ 
+//     let colorInfo3=document.getElementById("colorInfo3");
+//     colorData3.R = (colorData1_R + colorData2_R)/2;
+//    colorData3.G = (colorData1_G + colorData2_G)/2;
+//    colorData3.B = (colorData1_B + colordata2_B)/2;
+//    colorInfo3.style.backgroundColor=`rgba(${colorData3.R},${colorData3.G},${colorData3.B},1)`
+//    console.log(colorData3.B);
+
+// }
+  </script>
+</head>
+
+<body>
+
+
+  <center>
+    <h1>色を混ぜる</h1>
+  </center>
+
+  <div id="sikenkan">
+    <div id="colorInfo2"></div>
+    <div id="colorInfo1"></div>
+  </div>
+  <div id="colorInfo3"></div>
+
+  <input type="button" name="start" value="first" onclick="StartMethod()">
+  <input type="button" name="next" value="second" onclick="StatusChangeMethod()">
+  <input type="button" name="shake" value="shake" onclick="data3();">
+
+  <!--
+    <div id='v'>
+    </div>
+    <input type='range' id='cyan'    min='0' max='255' value='0'>Cyan<br>
+    <input type='range' id='magenta' min='0' max='255' value='0'>Magenta<br>
+    <input type='range' id='yellow'  min='0' max='255' value='0'>Yellow<br>
+    <script>
+    'use strict';
+    window.addEventListener('DOMContentLoaded', function() {
+        const c = {};
+        const d = document.querySelectorAll('colorInfo');
+                c.cyan = data[0]
+                c.magenta = data[1]
+                c.yellow = data[2]
+                const colorCode =
+                    (0xffffff - (c.cyan << 16 | c.magenta << 8 | c.yellow))
+                    .toString(16).padStart(6, '0');
+                document.querySelector('#v').style.backgroundColor = `#${colorInfo}`;
+            });
+    
+    </script>
+
+    -->
+</body>
+
+</html>

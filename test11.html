@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Web Serial API Console</title>
+
+    
+    <script>
+        let port;
+
+        async function onConnectButtonClick() {
+            try {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 115200 });
+
+                while (port.readable) {
+                    const reader = port.readable.getReader();
+
+                    try {
+                        while (true) {
+                            const { value, done } = await reader.read();
+                            if (done) {
+                                addSerial("Canceled\n");
+                                break;
+                            }
+                            const inputValue = new TextDecoder().decode(value);
+                            addSerial(inputValue);
+                        }
+                    } catch (error) {
+                        addSerial("Error: Read" + error + "\n");
+                    } finally {
+                        reader.releaseLock();
+                    }
+                }
+            } catch (error) {
+                addSerial("Error: Open" + error + "\n");
+            }
+        }
+        
+        function addSerial(msg) {
+            let a;
+            var textarea = document.getElementById('outputArea');
+            let colorInfo=document.getElementById("colorInfo");
+            let data=msg.split(",");
+            
+            // console.log(msg);
+            if(data.length===3){
+                let colorData= {R:data[0],G:data[1],B:data[2]};
+                colorData.R = 200;
+                a = colorData.R;
+
+              // 色の範囲指定 
+              //  if ( colorData.R <= 255) {
+              //   colorData.R = 200;
+              //  }
+               
+              //  if ( colorData.G <= 255) {
+              //   colorData.G = 10;
+              //  }
+                  
+              //  if ( colorData.B <= 255) {
+              //   colorData.B = 10;
+              //  }
+
+              // cookie使ってデータ保存
+              // document.cookie = colorData.R;
+              // document.cookie = colorData.G;
+              // document.cookie = colorData.B;
+              // let e = document.getElementById('cookie');
+              // e.insertAdjacentHTML('afterend', '<p>' + document.cookie + '</p>');
+              
+              textarea.value += data[0];
+              colorInfo.style.backgroundColor=`rgb(${colorData.R},${colorData.G},${colorData.B})`
+              
+              // 以下、特になくてもよし
+              // console.log(colorData.G);
+
+              // textarea.value="\n";
+              // textarea.scrollTop = textarea.scrollHeight;
+            //   var x = colorData.R;
+            //   var y = colorData.G;
+            //   var x = colorData.B;
+            //   function print_x(){
+            //         document.write(x);
+            //   }
+
+            }
+            
+            
+            
+        }
+        async function sendSerial() {
+            var text = document.getElementById('sendInput').value;
+            document.getElementById('sendInput').value = "";
+
+            const encoder = new TextEncoder();
+            const writer = port.writable.getWriter();
+            await writer.write(encoder.encode(text + "\n"));
+          writer.releaseLock();
+            
+        }
+        // colorData.B = 3;
+        // sessionStorage.setItem('キー', 'colorData.B')
+        // console.log(colorData.B);
+
+    //     var myfunc = function () {
+    //     colorData = 3;
+    // var str = colorData;
+    // document.getElementById('edit_area').innerHTML = str ;
+//   }
+    // colorData = 3;
+    // var str = colorData;
+    // document.getElementsByName('username')[0].value="hogehoge";
+    console.write(a);
+        
+        
+        
+    </script>
+</head>
+
+<body>
+    <button onclick="onConnectButtonClick()">色を取得する</button>
+    <br />
+<!--
+    <input type="text" id="sendInput" />
+    <input type="button" value="Send" onclick="sendSerial();" />
+    <br />
+    -->
+    <textarea cols="1" rows="1" id="outputArea" readonly>
+
+    </textarea>
+    <div id="colorInfo" style="width: 50vw;height: 50vw; "></div>
+    <p>ボタンをクリック！</p>
+ 
+  <div id="edit_area"></div>
+ 
+  <input type="button" value="Check" onclick="myfunc()">
+
+  <form action="test12.html" method="get">
+    <input type="text" name="t" value="textA"></input>
+    <input type="hidden" name="h" value="hiddenA">
+    <input type="submit">
+    </form>
+
+</body>
+
+</html>
